@@ -1,13 +1,11 @@
 <?php
-// Securely fetching Aiven credentials from Railway's environment
-$host = getenv('DB_HOST');
-$port = getenv('DB_PORT');
-$user = getenv('DB_USER');
-$pass = getenv('DB_PASS');
-$dbname = "defaultdb"; // Your Aiven database name
+$hostname = getenv('DB_HOST');
+$username = getenv('DB_USER');
+$password = getenv('DB_PASS');
+$database = getenv('DB_NAME');
+$port     = getenv('DB_PORT');
 
-// Establishing connection with the specific Aiven port
-$conn = mysqli_connect($host, $user, $pass, $dbname, $port);
+$conn = mysqli_connect($hostname, $username, $password, $database, $port);
 
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
