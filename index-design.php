@@ -89,17 +89,17 @@
         $plain_lower = strtolower($breed);            // "Syrian" -> "syrian"
 
         // 2. Check each possibility in order
-        if (file_exists("images/$with_hyphen.jpg")) {
-            $display_img = "images/$with_hyphen.jpg";
-        } elseif (file_exists("images/$lower_name.jpg")) {
-            $display_img = "images/$lower_name.jpg";
-        } elseif (file_exists("images/$plain_lower.jpg")) {
-            $display_img = "images/$plain_lower.jpg";
-        } elseif (!empty($row['image']) && file_exists("images/" . $row['image'])) {
-            $display_img = "images/" . $row['image'];
-        } else {
-            $display_img = "images/Collage.jpg"; // Your fallback
-        }
+    if (file_exists(__DIR__ . "/images/$with_hyphen.jpg")) {
+    $display_img = "images/$with_hyphen.jpg";
+} elseif (file_exists(__DIR__ . "/images/$lower_name.jpg")) {
+    $display_img = "images/$lower_name.jpg";
+} elseif (file_exists(__DIR__ . "/images/$plain_lower.jpg")) {
+    $display_img = "images/$plain_lower.jpg";
+} elseif (!empty($row['image']) && file_exists(__DIR__ . "/images/" . $row['image'])) {
+    $display_img = "images/" . $row['image'];
+} else {
+    $display_img = "images/Collage.jpg";
+}
     ?>
     <div class="animal-card">
         <div class="img-box">
