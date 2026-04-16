@@ -1,10 +1,12 @@
 <?php
-// Get connection settings from Railway Environment Variables
-$hostname = getenv('DB_HOST');
-$username = getenv('DB_USER');
-$password = getenv('DB_PASS');
-$database = getenv('DB_NAME');
-$port     = getenv('DB_PORT');
+<?php
+$conn = mysqli_connect(
+    getenv('DB_HOST'), 
+    getenv('DB_USER'), 
+    getenv('DB_PASS'), 
+    getenv('DB_NAME'), 
+    getenv('DB_PORT')
+);
 
 // Connect using the specific Aiven port (15368)
 $conn = mysqli_connect($hostname, $username, $password, $database, $port);
