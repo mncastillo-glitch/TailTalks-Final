@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join TailTalk | Sign Up</title>
+    <style>
+     
+        body { 
+            margin: 0; display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; width: 100%; position: relative; overflow-y: auto; 
+            padding: 30px 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif;
+        }
+
+      
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('images/Collage.jpg') no-repeat center center/cover; 
+            filter: blur(10px); transform: scale(1.1); z-index: -1;
+        }
+
+    
+        .card { 
+            background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12); width: 90%; 
+            max-width: 400px; text-align: center; z-index: 1; box-sizing: border-box; margin: auto;
+        }
+
+        h2 { color: #5dade2; margin-bottom: 20px; font-size: 24px; font-weight: 800; }
+
+
+        input[type="text"], input[type="email"], input[type="tel"], input[type="password"] { 
+            width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #e0e0e0; 
+            border-radius: 8px; font-size: 14px; box-sizing: border-box; display: block;
+        }
+
+        .row-start {
+            display: flex; align-items: center; gap: 8px; font-size: 13px;
+            color: #666; margin-bottom: 15px; cursor: pointer; text-align: left;
+        }
+
+        .main-btn { 
+            width: 100%; padding: 14px; background: #5dade2; border: none; 
+            color: white; border-radius: 8px; cursor: pointer; font-weight: bold; 
+            font-size: 16px; margin-bottom: 15px; transition: 0.2s;
+            text-decoration: none; display: inline-block;
+        }
+        .main-btn:hover { background: #3498db; }
+
+        .social-btn { 
+            display: flex; align-items: center; justify-content: center; 
+            width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; 
+            text-decoration: none; font-size: 13px; border: 1px solid #ddd; 
+            color: #444; font-weight: 600;
+        }
+
+        .captcha-box { 
+            background: #f9f9f9; border: 1px solid #ddd; padding: 10px; 
+            border-radius: 6px; display: flex; align-items: center; 
+            justify-content: space-between; margin-bottom: 15px; 
+        }
+
+
+        .status-msg {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            display: none; 
+        }
+        .status-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Join TailTalk</h2>
+
+    <div id="statusBox" class="status-msg"></div>
+    
+    <form action="signup.php" method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="email" name="email" placeholder="Email Address" required>
+        <input type="tel" name="phone" placeholder="Phone Number" required>
+        <input type="password" name="password" id="p1" placeholder="Password" required>
+        <input type="password" name="confirm_password" id="p2" placeholder="Confirm Password" required>
+        
+        <label class="row-start">
+            <input type="checkbox" id="showPass"> Show Passwords
+        </label>
+
+        <div class="captcha-box">
+             <div style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" required style="width:18px; height:18px;"> 
+                <span style="font-size: 13px; color: #555;">I'm not a robot</span>
+             </div>
+             <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" width="25" alt="reCAPTCHA">
+        </div>
+
+        <button type="submit" name="register" class="main-btn">Create Account</button>
+    </form>
+
+    <p style="font-size:10px; color:#aaa; text-transform:uppercase; margin-bottom: 10px;">or connect with</p>
+    
+    <a href="#" class="social-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="14" style="margin-right:8px;"> Google
+    </a>
+    
+    <a href="#" class="social-btn" style="background:#1877f2; color:white; border:none;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" width="14" style="margin-right:8px;"> Facebook
+    </a>
+    
+    <a href="#" class="social-btn" style="background:#24292e; color:white; border:none;">
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="14" style="margin-right:8px; filter:invert(1);"> GitHub
+    </a>
+
+    <p style="margin-top:15px; font-size:13px; color:#666;">Already a member? <a href="login.php" style="color:#5dade2; text-decoration:none; font-weight:bold;">Login</a></p>
+</div>
+
+    <script>
+        // Toggle password visibility
+        document.getElementById('showPass').addEventListener('change', function() {
+            const type = this.checked ? 'text' : 'password';
+            document.getElementById('p1').type = type;
+            document.getElementById('p2').type = type;
+        });
+
+        //  SCRIPT TO SHOW SUCCESS OR ERROR
+        const urlParams = new URLSearchParams(window.location.search);
+        const statusBox = document.getElementById('statusBox');
+
+        if (urlParams.has('status')) {
+            if (urlParams.get('status') === 'success') {
+                statusBox.innerText = "Registration Successful! 🐾";
+                statusBox.className = "status-msg status-success";
+                statusBox.style.display = "block";
+            }
+        } else if (urlParams.has('error')) {
+            statusBox.innerText = "Error: " + urlParams.get('error').replace('_', ' ');
+            statusBox.className = "status-msg status-error";
+            statusBox.style.display = "block";
+        }
+    </script>
+</body>
+</html>

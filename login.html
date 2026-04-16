@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TailTalk Login</title>
+    <style>
+        body { 
+            margin: 0; display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; width: 100%; position: relative; font-family: 'Segoe UI', sans-serif;
+        }
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('images/Collage.jpg') no-repeat center center/cover; 
+            filter: blur(10px); transform: scale(1.1); z-index: -1;
+        }
+        .card { 
+            background: white; padding: 35px; border-radius: 25px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); width: 95%; 
+            max-width: 400px; text-align: center; z-index: 1; box-sizing: border-box;
+        }
+        h2 { color: #5dade2; margin-bottom: 20px; font-size: 28px; font-weight: 800; }
+        .error-msg { color: #e74c3c; font-weight: bold; margin-bottom: 15px; font-size: 14px; }
+        input[type="text"], input[type="password"] { 
+            width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid #e0e0e0; 
+            border-radius: 12px; font-size: 15px; box-sizing: border-box; display: block;
+        }
+        .row-space-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 13px; color: #666; }
+        .row-left { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-size: 13px; color: #666; cursor: pointer; }
+        .main-btn { 
+            width: 100%; padding: 15px; background: #5dade2; border: none; 
+            color: white; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px;
+        }
+        .social-btn { 
+            display: flex; align-items: center; justify-content: center; 
+            width: 100%; padding: 11px; margin: 8px 0; border-radius: 10px; 
+            text-decoration: none; font-size: 13px; border: 1px solid #ddd; color: #444; font-weight: 600;
+        }
+        .github { background: #24292e; color: white; border: none; }
+        .facebook { background: #1877f2; color: white; border: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>TailTalk Login</h2>
+
+        <div class="error-msg">{{MESSAGE}}</div>
+        
+        <form action="login.php" method="POST">
+            <input type="text" name="user_input" placeholder="Username or Email" required>
+            <input type="password" name="password" id="loginPass" placeholder="Password" required>
+            
+            <div class="row-space-between">
+                <label style="cursor:pointer;"><input type="checkbox" id="showPass"> Show Password</label>
+                <a href="forgot-password.php" style="color:#5dade2; text-decoration:none; font-weight:600;">Forgot Password?</a>
+            </div>
+
+            <label class="row-left">
+                <input type="checkbox" name="remember"> Remember Me
+            </label>
+
+            <button type="submit" name="login" class="main-btn">Login</button>
+        </form>
+
+        <p style="font-size:10px; color:#aaa; text-transform:uppercase; margin: 15px 0 10px;">or connect with</p>
+
+        <a href="login.php?social=true" class="social-btn">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="16" style="margin-right:10px;"> Google
+        </a>
+
+        <a href="login.php?social=true" class="social-btn github">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="16" style="margin-right:10px; filter: invert(1);"> GitHub
+        </a>
+
+        <a href="login.php?social=true" class="social-btn facebook">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" width="16" style="margin-right:10px;"> Facebook
+        </a>
+
+        <p style="margin-top:20px; font-size:14px; color:#666;">Don't have an account? <a href="signup.html" style="color:#5dade2; text-decoration:none; font-weight:bold;">Create an account</a></p>
+    </div>
+
+    <script>
+        document.getElementById('showPass').addEventListener('change', function() {
+            document.getElementById('loginPass').type = this.checked ? 'text' : 'password';
+        });
+    </script>
+</body>
+</html>

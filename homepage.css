@@ -1,0 +1,798 @@
+/* --- 1. CORE THEME & VARIABLES --- */
+html {
+    scroll-behavior: smooth;
+}
+:root {
+    --main-blue: #5dade2;
+    --dark-navy: #1b4f72; 
+    --light-bg: #f4f9fc;
+    --sidebar-dark: #2c3e50;
+    --white: #ffffff;
+    --text-muted: #bdc3c7;
+}
+
+html { 
+    scroll-behavior: smooth; 
+}
+
+body { 
+    margin: 0; 
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background-color: var(--light-bg); 
+    overflow-x: hidden;
+}
+
+/* --- 2. STICKY NAVIGATION --- */
+.sticky-header {
+    position: fixed; 
+    top: 0;
+    width: 100%;
+    z-index: 2000; 
+    /* This makes it see-through and blurred */
+    background: rgba(93, 173, 226, 0.4) !important; 
+    backdrop-filter: blur(15px); 
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar { 
+    background: transparent !important;
+    height: 70px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 0 5%; 
+}
+
+.nav-left { 
+    display: flex; 
+    align-items: center; /* THE FIX: Keeps logo and burger level */
+    gap: 15px; 
+}
+
+.logo-link {
+    text-decoration: none;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.logo { 
+    font-size: 24px; 
+    font-weight: 800; 
+    margin: 0; 
+    line-height: 1; /* Prevents text from pushing the bar taller */
+}
+
+/* THE TRANSPARENT BURGER */
+.burger-btn { 
+    background: rgba(255, 255, 255, 0.1) !important; 
+    border: 1px solid rgba(255, 255, 255, 0.3); 
+    color: white; 
+    border-radius: 8px; 
+    padding: 8px 12px; 
+    cursor: pointer; 
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- LOGO COLOR FIX --- */
+.logo { 
+    font-size: 26px; 
+    font-weight: 900; 
+    letter-spacing: -1px; 
+    display: flex;
+    align-items: center;
+    color: var(--white) !important; /* "Tail" is now Dark Navy */
+}
+
+.logo span { 
+    color: var(--dark-navy) !important; /* "Talks" is now Blue */
+}
+
+/* Optional: Make the paw print blue to match "Talks" */
+.logo::after {
+    color: var(--main-blue);
+}
+
+.login-link {
+    color: white;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.login-link:hover {
+    background: white;
+    color: var(--main-blue);
+}
+/* --- 6. SIDEBAR (TRANSPARENT UPDATE) --- */
+.sidebar { 
+    height: 100%; 
+    width: 0; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    background: rgba(27, 79, 114, 0.8) !important; /* 80% opacity navy */
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 3000; 
+    transition: 0.4s ease; 
+}
+
+#overlay { 
+    display: none; 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0, 0, 0, 0.3); /* Lighter overlay for a cleaner look */
+    backdrop-filter: blur(2px);
+    z-index: 2500; 
+}
+/* --- 3. HERO COVER SECTION (GLASSY UPDATE) --- */
+.hero {
+    height: 100vh; 
+    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('images/bbnner.jpg'); 
+    background-size: cover;
+    background-position: center; 
+    background-attachment: fixed; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* THE GLASSY BOX */
+.hero-content {
+    background: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(15px); /* This creates the glass effect */
+    -webkit-backdrop-filter: blur(15px);
+    padding: 50px 40px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    max-width: 800px;
+    margin: 0 20px;
+}
+
+.hero h1 { 
+    font-size: 4rem; 
+    margin: 0; 
+    color: white;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+    font-weight: 900;
+}
+
+.hero p { 
+    font-size: 1.3rem; 
+    color: rgba(255, 255, 255, 0.9);
+    margin: 20px 0 30px; 
+}
+
+.hero-cta { 
+    display: inline-block;
+    background: var(--main-blue); 
+    color: white; 
+    padding: 14px 40px; 
+    border-radius: 50px; 
+    text-decoration: none; 
+    font-weight: bold; 
+    font-size: 18px;
+    transition: 0.3s ease;
+}
+
+.hero-cta:hover { 
+    background: white; 
+    color: var(--main-blue); 
+    transform: translateY(-3px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.scroll-arrow {
+    position: absolute;
+    bottom: 30px;
+    font-size: 30px;
+    color: white;
+    animation: bounce 2s infinite;
+}
+
+/* --- 4. SEARCH BAR --- */
+.search-container {
+    background: white;
+    padding: 20px 0; /* Reduced from 30px or higher to save space */
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid #eee;
+}
+
+.search-bar { 
+    display: flex; 
+    width: 90%; 
+    max-width: 500px; 
+    height: 45px; /* Fixed height makes it look consistent */
+    border: 2px solid var(--main-blue); 
+    border-radius: 40px; 
+    overflow: hidden; 
+}
+
+.search-bar input { 
+    flex: 1; 
+    border: none; 
+    padding: 0 20px; /* Horizontal padding only */
+    outline: none; 
+    font-size: 16px; 
+}
+
+.search-bar button { 
+    background: var(--main-blue); 
+    border: none; 
+    padding: 0 25px; 
+    color: white; 
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Adjust the SVG inside the button if needed */
+.search-bar button svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* --- 5. ANIMAL GRID & CARDS --- */
+.container {
+    max-width: 1400px;  /* Keeps the grid from getting too wide */
+    margin: 0 auto;     /* Centers everything */
+    padding: 0 6%;      /* THE FIX: Adds padding to the sides so cards don't touch edges */
+}
+
+.animal-grid {
+    display: grid;
+    /* THE FIX: Forces exactly 4 cards per row on desktop */
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 25px;
+    padding: 40px 0;
+}
+
+.animal-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+    padding-bottom: 20px;
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Card Hover Animation */
+.animal-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.img-box {
+    width: 100%;
+    height: 180px; /* Slightly shorter to fit 4-column layout better */
+    background: #f0f0f0;
+    overflow: hidden;
+}
+
+.img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.animal-card:hover .img-box img {
+    transform: scale(1.1);
+}
+
+.animal-card h3 {
+    margin: 15px 0;
+    font-size: 1.1rem; /* Smaller font to fit 4-column layout */
+    color: #2c3e50;
+}
+
+.info-btn {
+    display: inline-block;
+    background: var(--main-blue);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+    margin: 0 15px; /* Keeps button centered inside the card */
+}
+
+.info-btn:hover {
+    background: #2980b9;
+}
+
+/* RESPONSIVE FIX: Drops to 2 cards on tablets, 1 on phones */
+@media (max-width: 1100px) {
+    .animal-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+    .animal-grid { grid-template-columns: 1fr; }
+    .container { padding: 0 20px; }
+}
+/* --- 6. SIDEBAR & OVERLAY (FINAL FIX) --- */
+#overlay { 
+    display: none; 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.7); 
+    z-index: 2500; 
+}
+
+.sidebar { 
+    height: 100%; 
+    width: 0; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    background: var(--sidebar-dark); 
+    z-index: 3000; 
+    overflow-x: hidden; 
+    transition: 0.4s ease; 
+    display: flex;
+    flex-direction: column; /* This keeps things stacked */
+}
+
+/* This fixes the "TailTalks Menu" title text */
+.sidebar-header {
+    padding: 30px 25px;
+    color: var(--main-blue); /* This makes it light blue */
+    font-size: 22px;
+    font-weight: 800;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-links {
+    flex-grow: 1; 
+    padding-top: 20px;
+}
+
+.sidebar a { 
+    padding: 18px 25px; 
+    text-decoration: none; 
+    color: white; 
+    display: block; 
+    font-size: 18px; 
+    transition: 0.3s;
+}
+
+.sidebar a:hover { 
+    background: rgba(255,255,255,0.1); 
+    color: var(--main-blue); 
+}
+
+/* Logout Pinned to Bottom */
+.sidebar-footer {
+    margin-top: auto;
+    padding: 20px 0;
+}
+
+.logout-link {
+    color: #e74c3c !important; /* Red for Logout */
+    font-weight: bold;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.closebtn { 
+    font-size: 30px; 
+    cursor: pointer; 
+    color: white; 
+}
+/* --- 7. FOOTER --- */
+.site-footer {
+    background: var(--sidebar-dark);
+    color: white;
+    padding: 60px 5% 20px;
+    margin-top: 60px;
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-section { flex: 1; min-width: 250px; }
+.footer-section h3, .footer-section h4 { color: var(--main-blue); margin-bottom: 20px; }
+
+/* 1. REMOVES THE WHITE BULLET POINTS */
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-section li {
+    margin-bottom: 10px;
+}
+
+/* 2. FIXES THE PURPLE VISITED LINK ISSUE */
+.footer-section a {
+    color: var(--main-blue) !important; /* Stays blue even after clicking */
+    text-decoration: none; /* Removes underline */
+    transition: 0.3s ease;
+}
+
+/* 3. HOVER EFFECT (Turns white when you mouse over) */
+.footer-section a:hover {
+    color: white !important;
+    text-shadow: 0 0 8px rgba(93, 173, 226, 0.5); /* Subtle glow */
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+/* --- 8. RESPONSIVE --- */
+@media (max-width: 1100px) {
+    .animal-card { width: calc(33.33% - 15px); }
+    .hero h1 { font-size: 3.5rem; }
+}
+
+@media (max-width: 768px) {
+    .welcome-text { display: none; } 
+    .hero h1 { font-size: 2.8rem; }
+    .animal-card { width: calc(50% - 10px); min-width: 150px; }
+}
+
+/* --- PROFILE CARD V3 (PREMIUM IMPROVEMENTS) --- */
+.profile-page {
+    /* Updated background with your banner file */
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('images/bbnner.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif; /* Recommended font for this look */
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(25px) saturate(160%);
+    -webkit-backdrop-filter: blur(25px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    
+    /* SIZE INCREASES HERE */
+    width: 95%; 
+    max-width: 450px; /* Made it wider */
+    padding: 60px 45px; /* Increased padding for a more spacious feel */
+    
+    border-radius: 40px; 
+    text-align: center;
+    color: white;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    transition: all 0.4s ease;
+}
+
+/* Subtle Shimmer Animation */
+.profile-card::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -150%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+    transform: rotate(45deg);
+    transition: all 0.7s;
+}
+
+.profile-header h1 {
+    font-size: 38px; /* Increased from 32px */
+    margin-top: 10px;
+}
+
+.profile-card:hover::before {
+    left: 150%;
+}
+
+.profile-card:hover {
+    transform: translateY(-10px);
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Back Button Fix */
+.back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 25px;
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    color: #5dade2;
+    transform: translateX(-3px);
+}
+
+/* Avatar Polish */
+.user-avatar { 
+    width: 120px; 
+    height: 120px; 
+    border-radius: 50%; 
+    background: linear-gradient(135deg, rgba(93, 173, 226, 0.5), rgba(27, 79, 114, 0.7)); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    margin: 0 auto 20px;
+    border: 4px solid rgba(255, 255, 255, 0.15); 
+    font-size: 55px; 
+    color: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.profile-header h1 {
+    font-size: 34px;
+    font-weight: 800;
+    margin-bottom: 5px;
+    background: linear-gradient(to bottom, #fff, #ccc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- ACCOUNT STATUS IMPROVEMENTS --- */
+.status-container {
+    display: flex;
+    flex-direction: column; /* Stacks the text and badge */
+    align-items: flex-start;
+    gap: 5px;
+    width: 100%;
+}
+.status-badge {
+    background: rgba(93, 173, 226, 0.2); /* Light blue tint */
+    color: #5dade2; /* Signature Blue */
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 50px;
+    border: 1px solid rgba(93, 173, 226, 0.4);
+    display: flex;
+    align-self: flex-start;
+    width: fit-content;
+    gap: 5px;
+    box-shadow: 0 0 15px rgba(93, 173, 226, 0.2);
+    animation: pulse-glow 2s infinite;
+}
+
+/* Subtle pulse animation for the badge */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 5px rgba(93, 173, 226, 0.2); }
+    50% { box-shadow: 0 0 15px rgba(93, 173, 226, 0.5); }
+    100% { box-shadow: 0 0 5px rgba(93, 173, 226, 0.2); }
+}
+
+.detail-row {
+    display: flex;
+    gap: 15px; /* Space between the two small boxes */
+    margin-top: 15px;
+    width: 100%;
+}
+
+/* Rules for the smaller side-by-side boxes */
+.detail-group.small {
+    flex: 1; /* Makes them both exactly 50% width */
+    margin: 0; /* Important: removes the margin that causes overlapping */
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Make font slightly smaller in the twin boxes so it fits */
+.detail-group.small p {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Ensure icons don't break the layout */
+.detail-group.small label {
+    font-size: 9px;
+    margin-bottom: 5px;
+}
+
+.detail-group i {
+    transition: 0.3s;
+}
+
+.detail-group:hover i {
+    transform: scale(1.2);
+    color: #fff;
+}
+
+.detail-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #5dade2; 
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+/* The Blue Action Button */
+.edit-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #5dade2; 
+    color: white;
+    padding: 16px;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: 700;
+    margin-top: 35px;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 15px 30px rgba(93, 173, 226, 0.2);
+}
+
+.edit-link:hover {
+    background: #3498db;
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(93, 173, 226, 0.4);
+}
+
+.logout-button {
+    display: inline-block;
+    margin-top: 25px;
+    color: #ff7675;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.logout-button:hover {
+    opacity: 1;
+    color: #ff4d4d;
+}
+
+/* --- NAV BAR PROFILE PILL --- */
+.welcome-text {
+    display: flex;
+    align-items: center;
+}
+
+.profile-link {
+    text-decoration: none !important; /* Kills the link purple/blue */
+    color: white !important;
+    font-weight: 700; /* Bold text */
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 18px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profile-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.profile-link i {
+    font-size: 16px;
+    color: #5dade2; /* Signature blue icon */
+}
+
+/* The "Hello" part can be slightly more transparent to highlight the name */
+.welcome-text span {
+    opacity: 0.8;
+    font-weight: 400;
+}
+
+/* --- EDIT FORM INPUTS --- */
+.edit-form input, 
+.edit-form select {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    margin-top: 5px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.edit-form input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #5dade2;
+    box-shadow: 0 0 10px rgba(93, 173, 226, 0.2);
+}
+
+/* Styling the dropdown options */
+.edit-form select option {
+    background: #2c3e50;
+    color: white;
+}
+
+.bio-section {
+    margin: 15px 0;
+    font-style: italic;
+    opacity: 0.9;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 0 20px;
+}
+
+textarea.glass-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    padding: 10px;
+    resize: none; /* Stops users from stretching the box */
+}
+
+/*details*/
+.info-group {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid #5dade2;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.info-group label {
+    display: block;
+    color: #5dade2;
+    font-weight: bold;
+    font-size: 13px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.info-group p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+}
