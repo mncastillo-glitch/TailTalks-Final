@@ -1,16 +1,14 @@
 <?php
-$conn = mysqli_connect(
-    getenv('DB_HOST'),
-    getenv('DB_USER'),
-    getenv('DB_PASS'),
-    getenv('DB_NAME'),
-    getenv('DB_PORT')
-);
+$host = getenv('DB_HOST');
+$ip = gethostbyname($host);
 
-// Add SSL after connecting
-mysqli_ssl_set($conn, NULL, NULL, '/path/to/ca.pem', NULL, NULL);
+echo "HOST: " . $host . "<br>";
+echo "DNS resolved to: " . $ip . "<br>";
 
-if (!$conn) {
-    die("Database Connection failed: " . mysqli_connect_error());
+if ($ip === $host) {
+    echo "❌ DNS FAILED";
+} else {
+    echo "✅ DNS OK - " . $ip;
 }
+exit;
 ?>
