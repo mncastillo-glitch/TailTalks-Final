@@ -1,14 +1,13 @@
 <?php
-$host = getenv('DB_HOST');
-$ip = gethostbyname($host);
+$conn = mysqli_connect(
+    getenv('MYSQLHOST'),
+    getenv('MYSQLUSER'),
+    getenv('MYSQLPASSWORD'),
+    getenv('MYSQLDATABASE'),
+    getenv('MYSQLPORT')
+);
 
-echo "HOST: " . $host . "<br>";
-echo "DNS resolved to: " . $ip . "<br>";
-
-if ($ip === $host) {
-    echo "❌ DNS FAILED";
-} else {
-    echo "✅ DNS OK - " . $ip;
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
 }
-exit;
 ?>
