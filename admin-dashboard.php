@@ -1,7 +1,6 @@
 <?php 
 session_start();
 
-// 1. Security Check (CITE005 - Access Control)
 if (!isset($_SESSION['staff_logged_in'])) {
     header("Location: staff-login.php");
     exit();
@@ -9,7 +8,7 @@ if (!isset($_SESSION['staff_logged_in'])) {
 
 include 'db.php';
 
-// 2. Handle CRUD Update (Week 7: DML)
+// 1. Handle Update
 if (isset($_GET['resolve_id'])) {
     $id = intval($_GET['resolve_id']);
     mysqli_query($conn, "UPDATE inquiries SET status = 'Resolved' WHERE id = $id");
@@ -17,35 +16,35 @@ if (isset($_GET['resolve_id'])) {
     exit();
 }
 
-// 3. Dynamic Column Check (Prevents "Unknown Column" Errors)
+// 2. DYNAMIC COLUMN DETECTION (The Fix for your Error)
 $columns_result = mysqli_query($conn, "SHOW COLUMNS FROM inquiries");
-$column_names = [];
-while($col = mysqli_fetch_assoc($columns_result)) {
-    $column_names[] = $col['Field'];
-}
+$cols = [];
+while($c = mysqli_fetch_assoc($columns_result)) { $cols[] = $c['Field']; }
 
-// Check which names exist in your Aiven table
-$subj_col = in_array('subject', $column_names) ? 'subject' : (in_array('breed_interest', $column_names) ? 'breed_interest' : "'General'");
-$date_col = in_array('submitted_at', $column_names) ? 'submitted_at' : (in_array('date', $column_names) ? 'date' : 'id');
+// Detect which names you actually used in Aiven
+$name_col  = in_array('name', $cols) ? 'name' : (in_array('user_name', $cols) ? 'user_name' : 'id');
+$email_col = in_array('email', $cols) ? 'email' : (in_array('user_email', $cols) ? 'user_email' : 'id');
+$subj_col  = in_array('subject', $cols) ? 'subject' : (in_array('breed_interest', $cols) ? 'breed_interest' : "'General'");
 
-// 4. Aggregate Functions for Stats (Week 8)
-$stats_query = "SELECT 
-    COUNT(*) as total, 
-    SUM(CASE WHEN status = 'New' OR status IS NULL THEN 1 ELSE 0 END) as pending
-    FROM inquiries";
+// 3. Stats (Week 8)
+$stats_query = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'Resolved' THEN 0 ELSE 1 END) as pending FROM inquiries";
 $stats_result = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
 
-// 5. Advanced Search & CASE Logic (Week 7 & 11)
+// 4. Advanced Search (Week 7 & 11)
 $search = mysqli_real_escape_string($conn, $_GET['search'] ?? '');
 $query = "SELECT *, 
     CASE 
         WHEN message LIKE '%urgent%' OR message LIKE '%emergency%' THEN 'Urgent'
         WHEN $subj_col = 'Adoption' THEN 'Priority'
-        ELSE 'General'
+        ELSE 'General' 
     END AS priority_level
     FROM inquiries 
-    WHERE (name LIKE '%$search%' OR email LIKE '%$search%' OR message LIKE '%$search%' OR $subj_col LIKE '%$search%')
+    WHERE ($name_col LIKE '%$search%' 
+       OR $email_col LIKE '%$search%' 
+       OR message LIKE '%$search%' 
+       OR $subj_col LIKE '%$search%')
     ORDER BY status ASC, id DESC";
+
 $result = mysqli_query($conn, $query);
 ?>
 
