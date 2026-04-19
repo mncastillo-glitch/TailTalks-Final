@@ -3,35 +3,37 @@ session_start();
 include('db.php');
 $error_msg = "";
 
-// Instant Login for Social Buttons
+// Social login shortcut
 if (isset($_GET['social'])) {
     $_SESSION['username'] = "Guest Member";
-    header("Location: index.php"); 
+    header("Location: index.php");
     exit();
 }
 
 if (isset($_POST['login'])) {
-    $user_input = mysqli_real_escape_string($conn, $_POST['user_input']);
-    $password = $_POST['password'];
+    $user_input = trim($_POST['user_input']);
+    $password   = $_POST['password'];
 
-    $query = "SELECT * FROM users WHERE username='$user_input' OR email='$user_input' LIMIT 1";
-    $result = mysqli_query($conn, $query);
+    // Prepared statement — safe from SQL injection
+    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1");
+    $stmt->bind_param("ss", $user_input, $user_input);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
 
-    if ($row = mysqli_fetch_assoc($result)) {
+    if ($row) {
         if (password_verify($password, $row['password'])) {
             $_SESSION['username'] = $row['username'];
-            $_SESSION['user_id'] = $row['id'];
+            $_SESSION['user_id']  = $row['id'];
 
-            // --- REMEMBER ME LOGIC ---
+            // Remember Me
             if (isset($_POST['remember'])) {
-                // Store the username in a cookie for 30 days
-                setcookie("user_login", $row['username'], time() + (86400 * 30), "/"); 
+                setcookie("user_login", $row['username'], time() + (86400 * 30), "/");
             } else {
-                // If not checked, delete any existing cookie
                 setcookie("user_login", "", time() - 3600, "/");
             }
 
-            header("Location: index.php"); 
+            header("Location: index.php");
             exit();
         } else {
             $error_msg = "Invalid password.";
