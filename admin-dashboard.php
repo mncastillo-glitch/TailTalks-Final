@@ -1,7 +1,7 @@
 <?php 
 session_start();
 
-// 1. SECURITY: Access Control & Session Protection
+// 1. SECURITY: Access Control
 if (!isset($_SESSION['staff_logged_in'])) {
     header("Location: staff-login.php");
     exit();
@@ -9,7 +9,7 @@ if (!isset($_SESSION['staff_logged_in'])) {
 
 include 'db.php';
 
-// 2. SECURITY: CRUD Operations via Prepared Statements (Week 16)
+// 2. SECURITY: Prepared Statements for Actions (Week 16)
 if (isset($_GET['resolve_id'])) {
     $stmt = $conn->prepare("UPDATE inquiries SET status = 'Resolved' WHERE id = ?");
     $stmt->bind_param("i", $_GET['resolve_id']);
@@ -26,13 +26,15 @@ if (isset($_GET['delete_id'])) {
     exit();
 }
 
-// 3. SCHEMA MAPPING: Dynamic Column Discovery
+// 3. AUTO-MAPPING: Finding your specific Aiven column names
 $columns_result = mysqli_query($conn, "SHOW COLUMNS FROM inquiries");
 $cols = [];
 while($c = mysqli_fetch_assoc($columns_result)) { $cols[] = $c['Field']; }
 
-$name_col  = in_array('name', $cols) ? 'name' : (in_array('user_name', $cols) ? 'user_name' : 'id');
-$subj_col  = in_array('subject', $cols) ? 'subject' : (in_array('breed_interest', $cols) ? 'breed_interest' : "'General'");
+$name_col  = in_array('name', $cols) ? 'name' : 'user_name';
+$email_col = in_array('email', $cols) ? 'email' : 'user_email';
+$time_col  = in_array('submitted_at', $cols) ? 'submitted_at' : (in_array('created_at', $cols) ? 'created_at' : 'id');
+$subj_col  = in_array('subject', $cols) ? 'subject' : 'breed_interest';
 
 // 4. ANALYTICS: Aggregate Functions (Week 8)
 $stats_query = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END) as resolved FROM inquiries";
@@ -41,17 +43,17 @@ $total = $stats_result['total'] ?? 0;
 $res = $stats_result['resolved'] ?? 0;
 $percent = ($total > 0) ? round(($res / $total) * 100) : 0;
 
-// 5. SECURITY: Search Filter with Prepared Statements
+// 5. SECURE SEARCH: Using Prepared Statements
 $search = $_GET['search'] ?? '';
 $search_param = "%$search%";
 $query = "SELECT *, 
     CASE 
-        WHEN message LIKE '%urgent%' OR message LIKE '%emergency%' THEN 'Urgent'
+        WHEN message LIKE '%urgent%' THEN 'Urgent'
         WHEN $subj_col = 'Adoption' THEN 'Priority'
         ELSE 'General' 
     END AS priority_level
     FROM inquiries 
-    WHERE ($name_col LIKE ? OR message LIKE ? OR $subj_col LIKE ?)
+    WHERE ($name_col LIKE ? OR $email_col LIKE ? OR message LIKE ?)
     ORDER BY status ASC, id DESC";
 
 $stmt = $conn->prepare($query);
@@ -64,60 +66,58 @@ $result = $stmt->get_result();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TailTalks | Secure Staff Portal</title>
+    <title>TailTalks | Professional Admin</title>
     <style>
-        body { background: radial-gradient(circle at center, #1e293b, #000000); color: white; font-family: 'Segoe UI', sans-serif; padding: 40px; }
-        .dashboard-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border-radius: 30px; padding: 40px; max-width: 1200px; margin: auto; border: 1px solid rgba(255,255,255,0.1); }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .stat-box { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        .progress-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        .search-container { margin-bottom: 30px; display: flex; gap: 10px; }
-        .search-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; color: white; outline:none; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        td { padding: 20px; background: rgba(255,255,255,0.04); }
-        .btn { padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; }
-        .btn-blue { background: #5dade2; color: white; }
-        .btn-red { background: rgba(231, 76, 60, 0.2); color: #f87171; border: 1px solid rgba(231, 76, 60, 0.2); }
-        .resolved-row td { opacity: 0.4; filter: grayscale(1); }
+        body { background: #0f172a; color: #f1f5f9; font-family: 'Inter', sans-serif; padding: 40px; }
+        .dashboard-card { background: #1e293b; border-radius: 20px; padding: 30px; border: 1px solid #334155; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-box { background: #334155; padding: 20px; border-radius: 15px; border-left: 4px solid #38bdf8; }
+        .progress-bar { height: 6px; background: #0f172a; border-radius: 10px; margin-top: 10px; overflow: hidden; }
+        .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-input { flex: 1; background: #0f172a; border: 1px solid #475569; padding: 12px; border-radius: 10px; color: white; outline: none; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; background: #0f172a; font-size: 0.8rem; text-transform: uppercase; color: #94a3b8; }
+        td { padding: 15px; border-bottom: 1px solid #334155; font-size: 0.9rem; }
+        .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.8rem; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-blue { background: #38bdf8; color: #0f172a; }
+        .btn-outline { border: 1px solid #475569; color: #94a3b8; }
+        .resolved-row { background: rgba(15, 23, 42, 0.4); opacity: 0.6; }
     </style>
 </head>
 <body>
 
 <div class="dashboard-card">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-        <div>
-            <h1 style="margin:0; color:#5dade2;">Staff Portal</h1>
-            <p style="margin:5px 0 0 0; opacity:0.5;">Managing Database: defaultdb</p>
-        </div>
-        <a href="logout.php" class="btn btn-red">Logout</a>
+        <h1>Staff Portal <span style="font-size:0.9rem; color:#38bdf8;">v2.0 Secure</span></h1>
+        <a href="logout.php" class="btn btn-outline">Secure Logout</a>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box">
             <small>Total Inquiries</small>
             <h2><?php echo $total; ?></h2>
-            <div class="progress-bar"><div style="width:100%; height:100%; background:#5dade2;"></div></div>
         </div>
-        <div class="stat-box">
-            <small>Resolution Progress</small>
-            <h2 style="color:#10b981;"><?php echo $percent; ?>%</h2>
+        <div class="stat-box" style="border-color:#10b981;">
+            <small>Resolution Rate</small>
+            <h2><?php echo $percent; ?>%</h2>
             <div class="progress-bar"><div style="width:<?php echo $percent; ?>%; height:100%; background:#10b981;"></div></div>
         </div>
     </div>
 
     <form method="GET" class="search-container">
-        <input type="text" name="search" class="search-input" placeholder="Search secure inquiry logs..." value="<?php echo htmlspecialchars($search); ?>">
+        <input type="text" name="search" class="search-input" placeholder="Search name, email, or content..." value="<?php echo htmlspecialchars($search); ?>">
         <button type="submit" class="btn btn-blue">Filter</button>
-        <button type="button" class="btn btn-blue" onclick="exportToCSV()">Export CSV</button>
+        <button type="button" class="btn btn-outline" onclick="exportProfessionalCSV()">Professional Export</button>
     </form>
 
-    <table>
+    <table id="adminTable">
         <thead>
             <tr>
                 <th>Status</th>
                 <th>Priority</th>
-                <th>Sender</th>
-                <th>Message</th>
+                <th>Sender & Email</th>
+                <th>Message Content</th>
+                <th>Date Sent</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -126,15 +126,19 @@ $result = $stmt->get_result();
                 $isRes = ($row['status'] === 'Resolved');
             ?>
             <tr class="<?php echo $isRes ? 'resolved-row' : ''; ?>">
-                <td><strong style="color:<?php echo $isRes ? '#10b981':'#f59e0b'; ?>;"><?php echo $row['status'] ?? 'New'; ?></strong></td>
+                <td><b style="color:<?php echo $isRes ? '#10b981':'#f59e0b'; ?>;"><?php echo $row['status'] ?? 'New'; ?></b></td>
                 <td><small><?php echo $row['priority_level']; ?></small></td>
-                <td><strong><?php echo htmlspecialchars($row[$name_col]); ?></strong></td>
-                <td style="font-size:0.8rem; max-width:250px;"><?php echo htmlspecialchars($row['message']); ?></td>
+                <td>
+                    <b><?php echo htmlspecialchars($row[$name_col]); ?></b><br>
+                    <small style="color:#94a3b8;"><?php echo htmlspecialchars($row[$email_col] ?? 'No Email'); ?></small>
+                </td>
+                <td style="max-width:250px;"><?php echo htmlspecialchars($row['message']); ?></td>
+                <td><small><?php echo $row[$time_col] ?? 'Unknown'; ?></small></td>
                 <td>
                     <?php if(!$isRes): ?>
                         <a href="?resolve_id=<?php echo $row['id']; ?>" class="btn btn-blue">Resolve</a>
                     <?php else: ?>
-                        <a href="?delete_id=<?php echo $row['id']; ?>" class="btn btn-red" onclick="return confirm('Delete permanently?')">Delete</a>
+                        <a href="?delete_id=<?php echo $row['id']; ?>" style="color:#ef4444; text-decoration:none; font-size:0.8rem;" onclick="return confirm('Permanent Delete?')">Delete</a>
                     <?php endif; ?>
                 </td>
             </tr>
@@ -144,20 +148,29 @@ $result = $stmt->get_result();
 </div>
 
 <script>
-// Data Portability Feature
-function exportToCSV() {
-    let csv = [];
-    let rows = document.querySelectorAll("table tr");
-    for (let i = 0; i < rows.length; i++) {
-        let row = [], cols = rows[i].querySelectorAll("td, th");
-        for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText + '"');
-        csv.push(row.join(","));
+// Professional CSV Export Logic
+function exportProfessionalCSV() {
+    let rows = document.querySelectorAll("#adminTable tr");
+    let csvContent = "Status,Priority,Sender,Email,Message,DateSent\n";
+
+    for (let i = 1; i < rows.length; i++) {
+        let cells = rows[i].querySelectorAll("td");
+        let status = cells[0].innerText;
+        let priority = cells[1].innerText;
+        let sender = cells[2].querySelector("b").innerText;
+        let email = cells[2].querySelector("small").innerText;
+        let message = cells[3].innerText.replace(/,/g, " "); // Remove commas to prevent breaking CSV
+        let date = cells[4].innerText;
+        
+        csvContent += `${status},${priority},${sender},${email},${message},${date}\n`;
     }
-    let csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
-    let downloadLink = document.createElement("a");
-    downloadLink.download = "tailtalks-data.csv";
-    downloadLink.href = window.URL.createObjectURL(csvFile);
-    downloadLink.click();
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'TailTalks_Admin_Report.csv');
+    a.click();
 }
 </script>
 
