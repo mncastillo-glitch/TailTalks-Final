@@ -15,7 +15,12 @@ if (isset($_GET['resolve_id'])) {
     header("Location: admin-dashboard.php");
     exit();
 }
-
+if (isset($_GET['delete_id'])) {
+    $id = intval($_GET['delete_id']);
+    mysqli_query($conn, "DELETE FROM inquiries WHERE id = $id");
+    header("Location: admin-dashboard.php");
+    exit();
+}
 // 2. DYNAMIC COLUMN DETECTION (The Fix for your Error)
 $columns_result = mysqli_query($conn, "SHOW COLUMNS FROM inquiries");
 $cols = [];
@@ -105,16 +110,28 @@ $result = mysqli_query($conn, $query);
         <a href="logout.php" class="logout">Logout</a>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-box">
-            <small>Database Record Count (Week 8)</small>
-            <h2 style="margin: 5px 0;"><?php echo $stats_result['total']; ?></h2>
-        </div>
-        <div class="stat-box" style="border-color: #f59e0b;">
-            <small>Pending Response</small>
-            <h2 style="margin: 5px 0; color: #f59e0b;"><?php echo $stats_result['pending']; ?></h2>
+   <div class="stats-grid">
+    <div class="stat-box">
+        <small>Total Records</small>
+        <h2 style="margin: 5px 0;"><?php echo $stats_result['total']; ?></h2>
+        <div style="height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 10px;">
+            <div style="width: 100%; height: 100%; background: #5dade2; border-radius: 10px;"></div>
         </div>
     </div>
+    <div class="stat-box" style="border-color: #f59e0b;">
+        <small>Resolution Progress</small>
+        <h2 style="margin: 5px 0; color: #10b981;">
+            <?php 
+                $resolved = $stats_result['total'] - $stats_result['pending'];
+                $percent = ($stats_result['total'] > 0) ? round(($resolved / $stats_result['total']) * 100) : 0;
+                echo $percent . "% Done";
+            ?>
+        </h2>
+        <div style="height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 10px;">
+            <div style="width: <?php echo $percent; ?>%; height: 100%; background: #10b981; border-radius: 10px;"></div>
+        </div>
+    </div>
+</div>
 
     <form method="GET" class="search-container">
         <input type="text" name="search" class="search-input" placeholder="Search by name, email, or message keyword..." value="<?php echo htmlspecialchars($search); ?>">
@@ -153,13 +170,14 @@ $result = mysqli_query($conn, $query);
                     <small><?php echo htmlspecialchars($row['email'] ?? ''); ?></small>
                 </td>
                 <td style="max-width: 300px; font-size: 0.85rem;"><?php echo htmlspecialchars($row['message']); ?></td>
-                <td>
-                    <?php if (!$isResolved): ?>
-                        <a href="admin-dashboard.php?resolve_id=<?php echo $row['id']; ?>" class="btn-resolve" onclick="return confirm('Update record to Resolved?')">Resolve</a>
-                    <?php else: ?>
-                        <span style="color: #10b981;">Processed ✅</span>
-                    <?php endif; ?>
-                </td>
+             <td>
+    <?php if (!$isResolved): ?>
+        <a href="admin-dashboard.php?resolve_id=<?php echo $row['id']; ?>" class="btn-resolve" onclick="return confirm('Update record to Resolved?')">Resolve</a>
+    <?php else: ?>
+        <a href="admin-dashboard.php?delete_id=<?php echo $row['id']; ?>" style="color: #f87171; text-decoration: none; font-size: 0.8rem; margin-right: 10px;" onclick="return confirm('Permanently delete this record?')">Delete</a>
+        <span style="color: #10b981;">Processed ✅</span>
+    <?php endif; ?>
+</td>
             </tr>
             <?php endwhile; ?>
         </tbody>
