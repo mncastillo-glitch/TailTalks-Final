@@ -1,33 +1,40 @@
 <?php
 include 'db.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['register'])) {
-    $user  = mysqli_real_escape_string($conn, $_POST['username']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
+    $user  = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $phone = trim($_POST['phone']);
     $p1    = $_POST['password'];
     $p2    = $_POST['confirm_password'];
 
+    // Check password match
     if ($p1 !== $p2) {
-        header("Location: signup.html?error=mismatch");
+        header("Location: signup.html?error=password_mismatch");
         exit();
     }
 
-    $check = mysqli_query($conn, "SELECT * FROM users WHERE username='$user' OR email='$email'");
-    if (mysqli_num_rows($check) > 0) {
-        header("Location: signup.html?error=exists");
+    // Check if username or email already exists (prepared statement)
+    $check = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+    $check->bind_param("ss", $user, $email);
+    $check->execute();
+    $check->store_result();
+
+    if ($check->num_rows > 0) {
+        header("Location: signup.html?error=already_exists");
         exit();
     }
 
+    // Hash password and insert (prepared statement)
     $hashed = password_hash($p1, PASSWORD_DEFAULT);
-    $sql = "INSERT INTO users (username, email, phone, password) VALUES ('$user', '$email', '$phone', '$hashed')";
+    $stmt = $conn->prepare("INSERT INTO users (username, email, phone, password) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $user, $email, $phone, $hashed);
 
-    if (mysqli_query($conn, $sql)) {
-        // SUCCESS: Redirect back to HTML with a success flag
+    if ($stmt->execute()) {
         header("Location: signup.html?status=success");
         exit();
     } else {
-        header("Location: signup.html?error=db");
+        header("Location: signup.html?error=db_error");
         exit();
     }
 }
