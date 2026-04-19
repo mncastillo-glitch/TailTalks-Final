@@ -21,6 +21,10 @@
             <a href="index.php#dogs-section" onclick="closeNav()"><i class="fa fa-dog"></i> All Breeds</a>
             <a href="about-design.php"><i class="fa fa-info-circle"></i> About Us</a>
             <a href="contact.php"><i class="fa fa-envelope"></i> Contact</a>
+
+            <?php if(isset($_SESSION['user_id'])): ?>
+            <a href="my-inquiries.php" style="color:#10b981;"><i class="fa fa-clipboard-list"></i> My Inquiries</a>
+            <?php endif; ?>
         </div>
         <div class="sidebar-footer">
             <a href="logout.php" class="logout-link"><i class="fa fa-sign-out-alt"></i> Logout</a>
@@ -42,6 +46,11 @@
                     <a href="profile.php" class="profile-link">
                         <span>Hello,</span> <strong><?php echo htmlspecialchars($username); ?></strong> 🐾
                     </a>
+                    <?php if(isset($_SESSION['user_id'])): ?>
+                    <a href="my-inquiries.php" class="profile-link" style="margin-left:8px; background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.4); color:#10b981;">
+                        📋 My Inquiries
+                    </a>
+                    <?php endif; ?>
                 <?php else: ?>
                     <a href="login.php" class="login-link">Login / Signup</a>
                 <?php endif; ?>
@@ -83,23 +92,21 @@
     <?php while ($row = mysqli_fetch_assoc($result)): 
         $breed = $row['breed_name'];
         
-        // 1. Create multiple naming possibilities
-        $with_hyphen = str_replace(' ', '-', $breed); // "Maine Coon" -> "Maine-Coon"
-        $lower_name = strtolower($with_hyphen);       // "Maine-Coon" -> "maine-coon"
-        $plain_lower = strtolower($breed);            // "Syrian" -> "syrian"
+        $with_hyphen = str_replace(' ', '-', $breed);
+        $lower_name = strtolower($with_hyphen);
+        $plain_lower = strtolower($breed);
 
-        // 2. Check each possibility in order
     if (file_exists(__DIR__ . "/images/$with_hyphen.jpg")) {
-    $display_img = "images/$with_hyphen.jpg";
-} elseif (file_exists(__DIR__ . "/images/$lower_name.jpg")) {
-    $display_img = "images/$lower_name.jpg";
-} elseif (file_exists(__DIR__ . "/images/$plain_lower.jpg")) {
-    $display_img = "images/$plain_lower.jpg";
-} elseif (!empty($row['image']) && file_exists(__DIR__ . "/images/" . $row['image'])) {
-    $display_img = "images/" . $row['image'];
-} else {
-    $display_img = "images/Collage.jpg";
-}
+        $display_img = "images/$with_hyphen.jpg";
+    } elseif (file_exists(__DIR__ . "/images/$lower_name.jpg")) {
+        $display_img = "images/$lower_name.jpg";
+    } elseif (file_exists(__DIR__ . "/images/$plain_lower.jpg")) {
+        $display_img = "images/$plain_lower.jpg";
+    } elseif (!empty($row['image']) && file_exists(__DIR__ . "/images/" . $row['image'])) {
+        $display_img = "images/" . $row['image'];
+    } else {
+        $display_img = "images/Collage.jpg";
+    }
     ?>
     <div class="animal-card">
         <div class="img-box">
@@ -133,11 +140,14 @@
                     <li><a href="index.php">Cats</a></li>
                     <li><a href="index.php">Birds</a></li>
                     <li><a href="index.php">Hamsters</a></li>
+                    <?php if(isset($_SESSION['user_id'])): ?>
+                    <li><a href="my-inquiries.php">My Inquiries</a></li>
+                    <?php endif; ?>
                 </ul>
             </div>
             <div class="footer-section">
                 <h4>Connect</h4>
-                <p>Email: support@tailtalks.com</p>
+                <p>Email: Petinfo&health@tailtalks.com</p>
                 <p>Location: Manila, Philippines</p>
             </div>
         </div>
@@ -159,4 +169,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
