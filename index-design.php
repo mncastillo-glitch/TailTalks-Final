@@ -195,9 +195,9 @@
                 <h4>Quick Links</h4>
                 <ul>
                     <li><a href="index.php#dogs-section">Dogs</a></li>
-                    <li><a href="index.php">Cats</a></li>
-                    <li><a href="index.php">Birds</a></li>
-                    <li><a href="index.php">Hamsters</a></li>
+                    <li><a href="index.php#cats-section">Cats</a></li>
+                    <li><a href="index.php#birds-section">Birds</a></li>
+                    <li><a href="index.php#hamsters-section">Hamsters</a></li>
                     <?php if(isset($_SESSION['user_id'])): ?>
                     <li><a href="my-inquiries.php">My Inquiries</a></li>
                     <?php endif; ?>
