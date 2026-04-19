@@ -224,7 +224,7 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
             <div style="flex:1;"><div class="modal-label">Status</div><div class="modal-value" id="mStatus"></div></div>
         </div>
         <div id="adminResponseSection" style="display:none;">
-            <div class="modal-label" style="color:#10b981;">✅ Admin Response Sent to User</div>
+            <div class="modal-label" style="color:#10b981;"> Admin Response Sent to User</div>
             <div class="modal-value" id="mResponse" style="color:#10b981; border-color:#10b981;"></div>
         </div>
     </div>
@@ -234,7 +234,7 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
 <div class="modal-overlay" id="resolveModal">
     <div class="resolve-box">
         <button class="modal-close" onclick="closeModal('resolveModal')">✕</button>
-        <h2 style="color:#10b981; margin-bottom:5px;">✅ Resolve Inquiry</h2>
+        <h2 style="color:#10b981; margin-bottom:5px;"> Resolve Inquiry</h2>
         <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:15px;" id="resolveSubtitle"></p>
         <form method="POST">
             <input type="hidden" name="resolve_id" id="resolveId">
@@ -243,7 +243,7 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
             <textarea name="admin_response" class="resolve-textarea" 
                 placeholder="e.g. Your inquiry has been approved! Please visit our shelter at 123 Main St or email us at tailtalks@email.com to schedule a visit."></textarea>
             <div style="display:flex; gap:10px; margin-top:15px;">
-                <button type="submit" class="btn btn-green" style="flex:1; padding:12px; font-size:1rem;">✅ Confirm & Approve</button>
+                <button type="submit" class="btn btn-green" style="flex:1; padding:12px; font-size:1rem;"> Confirm & Approve</button>
                 <button type="button" class="btn btn-red" style="flex:1; padding:12px;" onclick="closeModal('resolveModal')">Cancel</button>
             </div>
         </form>
