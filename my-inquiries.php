@@ -295,7 +295,7 @@ function timeAgo($datetime) {
             </div>
 
             <div class="card-actions">
-                <a href="inquire.php?breed=<?php echo urlencode($inq['breed']); ?>" class="action-btn btn-reinquire">
+                <a href="inquiry.php?breed=<?php echo urlencode($inq['breed']); ?>" class="action-btn btn-reinquire">
                     <i class="fa fa-redo"></i> Re-inquire for this Breed
                 </a>
                 <button class="action-btn btn-print" onclick="printCard(<?php echo $inq['id']; ?>)">
