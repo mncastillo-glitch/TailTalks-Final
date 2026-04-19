@@ -110,29 +110,33 @@ $result = $stmt->get_result();
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
-            <?php while($row = $result->fetch_assoc()): 
-                $isRes = ($row['status'] === 'Resolved');
-            ?>
-            <tr class="<?php echo $isRes ? 'resolved-row' : ''; ?>">
-                <td><b style="color:<?php echo $isRes ? '#10b981':'#f59e0b'; ?>;"><?php echo $row['status'] ?? 'New'; ?></b></td>
-                <td>
-                    <strong><?php echo htmlspecialchars($row['fullname']); ?></strong><br>
-                    <small style="color:#94a3b8;"><?php echo htmlspecialchars($row['email']); ?></small>
-                </td>
-                <td><small><?php echo htmlspecialchars($row['breed']); ?></small></td>
-                <td><?php echo htmlspecialchars(substr($row['message'], 0, 50)); ?>...</td>
-                <td><small><?php echo $row['submitted_at']; ?></small></td>
-                <td>
-                    <?php if(!$isRes): ?>
-                        <a href="?resolve_id=<?php echo $row['id']; ?>" class="btn btn-blue">Resolve</a>
-                    <?php else: ?>
-                        <a href="?delete_id=<?php echo $row['id']; ?>" class="btn btn-red" onclick="return confirm('Delete permanently?')">Delete</a>
-                    <?php endif; ?>
-                </td>
-            </tr>
-            <?php endwhile; ?>
-        </tbody>
+  <tbody>
+    <?php while($row = $result->fetch_assoc()): 
+        $isRes = ($row['status'] === 'Resolved');
+    ?>
+    <tr class="<?php echo $isRes ? 'resolved-row' : ''; ?>">
+        <td><b style="color:<?php echo $isRes ? '#10b981':'#f59e0b'; ?>;"><?php echo $row['status'] ?? 'New'; ?></b></td>
+        <td>
+            <strong><?php echo htmlspecialchars($row['fullname']); ?></strong><br>
+            <small style="color:#94a3b8;"><?php echo htmlspecialchars($row['email']); ?></small>
+        </td>
+        <td><small><?php echo htmlspecialchars($row['breed']); ?></small></td>
+        
+        <td style="max-width:400px; white-space: normal; word-wrap: break-word; line-height: 1.6; font-size: 0.85rem;">
+            <?php echo htmlspecialchars($row['message']); ?>
+        </td>
+        
+        <td><small><?php echo $row['submitted_at']; ?></small></td>
+        <td>
+            <?php if(!$isRes): ?>
+                <a href="?resolve_id=<?php echo $row['id']; ?>" class="btn btn-blue">Resolve</a>
+            <?php else: ?>
+                <a href="?delete_id=<?php echo $row['id']; ?>" class="btn btn-red" onclick="return confirm('Delete permanently?')">Delete</a>
+            <?php endif; ?>
+        </td>
+    </tr>
+    <?php endwhile; ?>
+</tbody>
     </table>
 </div>
 
