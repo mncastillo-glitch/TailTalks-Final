@@ -1,7 +1,6 @@
 <?php 
 session_start();
 
-// 1. SECURITY: Session Check
 if (!isset($_SESSION['staff_logged_in'])) {
     header("Location: staff-login.php");
     exit();
@@ -9,7 +8,6 @@ if (!isset($_SESSION['staff_logged_in'])) {
 
 include 'db.php';
 
-// 2. SECURITY: Prepared Statements for Actions
 if (isset($_GET['resolve_id'])) {
     $stmt = $conn->prepare("UPDATE inquiries SET status = 'Resolved' WHERE id = ?");
     $stmt->bind_param("i", $_GET['resolve_id']);
@@ -26,18 +24,15 @@ if (isset($_GET['delete_id'])) {
     exit();
 }
 
-// 3. ANALYTICS: Database Statistics
 $stats_query = "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END) as resolved FROM inquiries";
 $stats_result = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
 $total = $stats_result['total'] ?? 0;
 $res = $stats_result['resolved'] ?? 0;
 $percent = ($total > 0) ? round(($res / $total) * 100) : 0;
 
-// 4. Users and Breeds Count
 $users_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM users"))['total'] ?? 0;
 $breeds_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM breeds"))['total'] ?? 0;
 
-// 5. DATA FETCHING
 $search = $_GET['search'] ?? '';
 $search_param = "%$search%";
 $query = "SELECT *, 
@@ -53,6 +48,12 @@ $stmt = $conn->prepare($query);
 $stmt->bind_param("sss", $search_param, $search_param, $search_param);
 $stmt->execute();
 $result = $stmt->get_result();
+
+// Store all rows in array first
+$rows = [];
+while ($row = $result->fetch_assoc()) {
+    $rows[] = $row;
+}
 ?>
 
 <!DOCTYPE html>
@@ -74,10 +75,9 @@ $result = $stmt->get_result();
         .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; font-size: 0.85rem; }
         .btn-blue { background: #38bdf8; color: #0f172a; }
         .btn-red { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
-        .btn-purple { background: rgba(167, 139, 250, 0.2); color: #a78bfa; border: 1px solid rgba(167, 139, 250, 0.3); }
+        .btn-purple { background: rgba(167, 139, 250, 0.2); color: #a78bfa; border: 1px solid rgba(167, 139, 250, 0.3); cursor: pointer; }
         .resolved-row { opacity: 0.5; filter: grayscale(0.5); }
 
-        /* Filter Tabs */
         .filter-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .filter-tab { padding: 8px 18px; border-radius: 20px; border: 1px solid #475569; background: transparent; color: #94a3b8; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
         .filter-tab.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; font-weight: bold; }
@@ -107,7 +107,6 @@ $result = $stmt->get_result();
         <a href="logout.php" class="btn btn-red">Secure Logout</a>
     </div>
 
-    <!-- STATS GRID -->
     <div class="stats-grid">
         <div class="stat-box">
             <small>Database Population</small>
@@ -128,14 +127,12 @@ $result = $stmt->get_result();
         </div>
     </div>
 
-    <!-- SEARCH + EXPORT -->
     <div class="search-container">
         <input type="text" id="liveSearch" class="search-input" placeholder="Search by name, email, or breed..." oninput="liveFilter()">
         <button type="button" class="btn btn-blue" onclick="liveFilter()">Filter Records</button>
         <button type="button" class="btn btn-blue" style="background:#475569;" onclick="exportProExcel()">Export Report</button>
     </div>
 
-    <!-- FILTER TABS -->
     <div class="filter-tabs">
         <button class="filter-tab active" onclick="filterTab('all', this)">All</button>
         <button class="filter-tab" onclick="filterTab('new', this)">New</button>
@@ -154,38 +151,37 @@ $result = $stmt->get_result();
             </tr>
         </thead>
         <tbody id="tableBody">
-            <?php while($row = $result->fetch_assoc()): 
+            <?php foreach ($rows as $index => $row): 
                 $isRes = ($row['status'] === 'Resolved');
                 $statusLabel = $row['status'] ?? 'New';
-                $fullMessage = htmlspecialchars($row['message']);
-                $fullName = htmlspecialchars($row['fullname']);
-                $email = htmlspecialchars($row['email']);
-                $breed = htmlspecialchars($row['breed']);
                 $timestamp = date('M d, Y h:i A', strtotime($row['submitted_at']));
                 $snippet = strlen($row['message']) > 50 ? substr($row['message'], 0, 50) . '...' : $row['message'];
             ?>
             <tr class="<?php echo $isRes ? 'resolved-row' : ''; ?>" 
                 data-status="<?php echo strtolower($statusLabel); ?>"
-                data-search="<?php echo strtolower($fullName . ' ' . $email . ' ' . $breed); ?>">
+                data-search="<?php echo strtolower(htmlspecialchars($row['fullname'] . ' ' . $row['email'] . ' ' . $row['breed'])); ?>"
+                data-id="<?php echo $index; ?>">
                 <td><b style="color:<?php echo $isRes ? '#10b981':'#f59e0b'; ?>;"><?php echo $statusLabel; ?></b></td>
                 <td>
-                    <strong><?php echo $fullName; ?></strong><br>
-                    <small style="color:#94a3b8;"><?php echo $email; ?></small>
+                    <strong><?php echo htmlspecialchars($row['fullname']); ?></strong><br>
+                    <small style="color:#94a3b8;"><?php echo htmlspecialchars($row['email']); ?></small>
                 </td>
-                <td><small><?php echo $breed; ?></small></td>
+                <td><small><?php echo htmlspecialchars($row['breed']); ?></small></td>
                 <td style="max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.85rem;">
                     <?php echo htmlspecialchars($snippet); ?>
                 </td>
                 <td><small><?php echo $timestamp; ?></small></td>
                 <td style="display:flex; gap:6px; flex-wrap:wrap;">
-                    <button class="btn btn-purple" onclick="openModal(
-                        '<?php echo addslashes($fullName); ?>',
-                        '<?php echo addslashes($email); ?>',
-                        '<?php echo addslashes($breed); ?>',
-                        '<?php echo addslashes($fullMessage); ?>',
-                        '<?php echo $timestamp; ?>',
-                        '<?php echo $statusLabel; ?>'
-                    )">View</button>
+                    <!-- FIX: Use data attributes instead of inline JS parameters -->
+                    <button class="btn btn-purple view-btn"
+                        data-name="<?php echo htmlspecialchars($row['fullname'], ENT_QUOTES); ?>"
+                        data-email="<?php echo htmlspecialchars($row['email'], ENT_QUOTES); ?>"
+                        data-breed="<?php echo htmlspecialchars($row['breed'], ENT_QUOTES); ?>"
+                        data-message="<?php echo htmlspecialchars($row['message'], ENT_QUOTES); ?>"
+                        data-timestamp="<?php echo $timestamp; ?>"
+                        data-status="<?php echo $statusLabel; ?>">
+                        View
+                    </button>
                     <?php if(!$isRes): ?>
                         <a href="?resolve_id=<?php echo $row['id']; ?>" class="btn btn-blue">Resolve</a>
                     <?php else: ?>
@@ -193,7 +189,7 @@ $result = $stmt->get_result();
                     <?php endif; ?>
                 </td>
             </tr>
-            <?php endwhile; ?>
+            <?php endforeach; ?>
         </tbody>
     </table>
 
@@ -237,15 +233,20 @@ $result = $stmt->get_result();
 </div>
 
 <script>
-function openModal(name, email, breed, message, timestamp, status) {
-    document.getElementById('mName').innerText = name;
-    document.getElementById('mEmail').innerText = email;
-    document.getElementById('mBreed').innerText = breed;
-    document.getElementById('mMessage').innerText = message;
-    document.getElementById('mTimestamp').innerText = timestamp;
-    document.getElementById('mStatus').innerText = status;
+// FIX: Use event delegation with data attributes — no more broken inline JS
+document.getElementById('tableBody').addEventListener('click', function(e) {
+    const btn = e.target.closest('.view-btn');
+    if (!btn) return;
+
+    document.getElementById('mName').textContent      = btn.dataset.name;
+    document.getElementById('mEmail').textContent     = btn.dataset.email;
+    document.getElementById('mBreed').textContent     = btn.dataset.breed;
+    document.getElementById('mMessage').textContent   = btn.dataset.message;
+    document.getElementById('mTimestamp').textContent = btn.dataset.timestamp;
+    document.getElementById('mStatus').textContent    = btn.dataset.status;
+
     document.getElementById('viewModal').classList.add('active');
-}
+});
 
 function closeModal() {
     document.getElementById('viewModal').classList.remove('active');
