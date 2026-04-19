@@ -48,7 +48,7 @@ $percent = ($total > 0) ? round(($res / $total) * 100) : 0;
 $users_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM users"))['total'] ?? 0;
 $breeds_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM breeds"))['total'] ?? 0;
 
-// FETCH inquiries
+
 $search = $_GET['search'] ?? '';
 $search_param = "%$search%";
 $query = "SELECT *, 
@@ -98,7 +98,7 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
         .filter-tab.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; font-weight: bold; }
         .filter-tab:hover:not(.active) { border-color: #38bdf8; color: #38bdf8; }
 
-        /* Modals */
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.active { display: flex; }
         .modal-box { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 30px; max-width: 500px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; }
@@ -145,14 +145,13 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
         </div>
     </div>
 
-    <!-- SEARCH -->
     <div class="search-container">
         <input type="text" id="liveSearch" class="search-input" placeholder="Search by name, email, or breed..." oninput="liveFilter()">
         <button type="button" class="btn btn-blue" onclick="liveFilter()">Filter Records</button>
         <button type="button" class="btn btn-blue" style="background:#475569;" onclick="exportProExcel()">Export Report</button>
     </div>
 
-    <!-- FILTER TABS -->
+
     <div class="filter-tabs">
         <button class="filter-tab active" onclick="filterTab('all', this)">All</button>
         <button class="filter-tab" onclick="filterTab('new', this)">New</button>
@@ -240,7 +239,7 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
     </div>
 </div>
 
-<!-- VIEW MODAL -->
+
 <div class="modal-overlay" id="viewModal">
     <div class="modal-box">
         <button class="modal-close" onclick="closeModal('viewModal')">✕</button>
@@ -284,7 +283,7 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
 <div class="modal-overlay" id="disapproveModal">
     <div class="disapprove-box">
         <button class="modal-close" onclick="closeModal('disapproveModal')">✕</button>
-        <h2 style="color:#f87171; margin-bottom:5px;">❌ Disapprove Inquiry</h2>
+        <h2 style="color:#f87171; margin-bottom:5px;"> Disapprove Inquiry</h2>
         <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:15px;" id="disapproveSubtitle"></p>
         <form method="POST">
             <input type="hidden" name="disapprove_id" id="disapproveId">
@@ -293,7 +292,7 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
             <textarea name="disapprove_reason" class="disapprove-textarea" 
                 placeholder="e.g. We're sorry, this breed is currently unavailable for adoption. Please check back later or consider another breed."></textarea>
             <div style="display:flex; gap:10px; margin-top:15px;">
-                <button type="submit" class="btn btn-red" style="flex:1; padding:12px; font-size:1rem; background:rgba(239,68,68,0.3); border:1px solid #f87171;">❌ Confirm Disapproval</button>
+                <button type="submit" class="btn btn-red" style="flex:1; padding:12px; font-size:1rem; background:rgba(239,68,68,0.3); border:1px solid #f87171;"> Confirm Disapproval</button>
                 <button type="button" class="btn" style="flex:1; padding:12px; background:#334155; color:#94a3b8;" onclick="closeModal('disapproveModal')">Cancel</button>
             </div>
         </form>
@@ -327,7 +326,7 @@ document.getElementById('tableBody').addEventListener('click', function(e) {
         document.getElementById('viewModal').classList.add('active');
     }
 
-    // RESOLVE button
+    
     const resolveBtn = e.target.closest('.resolve-btn');
     if (resolveBtn) {
         document.getElementById('resolveId').value = resolveBtn.dataset.id;
@@ -336,7 +335,7 @@ document.getElementById('tableBody').addEventListener('click', function(e) {
         document.getElementById('resolveModal').classList.add('active');
     }
 
-    // DISAPPROVE button
+
     const disapproveBtn = e.target.closest('.disapprove-btn');
     if (disapproveBtn) {
         document.getElementById('disapproveId').value = disapproveBtn.dataset.id;
