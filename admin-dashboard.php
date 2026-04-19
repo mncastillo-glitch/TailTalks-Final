@@ -19,6 +19,17 @@ if (isset($_POST['resolve_id'])) {
     exit();
 }
 
+// DISAPPROVE with reason message
+if (isset($_POST['disapprove_id'])) {
+    $disapprove_id = (int)$_POST['disapprove_id'];
+    $reason = trim($_POST['disapprove_reason'] ?? 'We regret to inform you that your inquiry has been disapproved.');
+    $stmt = $conn->prepare("UPDATE inquiries SET status = 'Disapproved', admin_response = ? WHERE id = ?");
+    $stmt->bind_param("si", $reason, $disapprove_id);
+    $stmt->execute();
+    header("Location: admin-dashboard.php");
+    exit();
+}
+
 // DELETE
 if (isset($_GET['delete_id'])) {
     $stmt = $conn->prepare("DELETE FROM inquiries WHERE id = ?");
@@ -75,9 +86,11 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
         .btn { padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; font-size: 0.85rem; display: inline-block; }
         .btn-blue { background: #38bdf8; color: #0f172a; }
         .btn-red { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+        .btn-orange { background: rgba(249,115,22,0.2); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); cursor: pointer; }
         .btn-purple { background: rgba(167,139,250,0.2); color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); cursor: pointer; }
         .btn-green { background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid rgba(16,185,129,0.3); cursor: pointer; }
         .resolved-row { opacity: 0.5; filter: grayscale(0.5); }
+        .disapproved-row { opacity: 0.5; filter: grayscale(0.5); }
 
         /* Filter Tabs */
         .filter-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
@@ -90,12 +103,15 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
         .modal-overlay.active { display: flex; }
         .modal-box { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 30px; max-width: 500px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; }
         .resolve-box { background: #1e293b; border: 1px solid #10b981; border-radius: 16px; padding: 30px; max-width: 500px; width: 90%; position: relative; }
+        .disapprove-box { background: #1e293b; border: 1px solid #f87171; border-radius: 16px; padding: 30px; max-width: 500px; width: 90%; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; }
         .modal-close:hover { color: white; }
         .modal-label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; margin-top: 12px; }
         .modal-value { background: #0f172a; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem; line-height: 1.6; word-wrap: break-word; }
         .resolve-textarea { width: 100%; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: white; padding: 12px; font-size: 0.9rem; resize: vertical; min-height: 100px; outline: none; font-family: inherit; margin-top: 8px; }
         .resolve-textarea:focus { border-color: #10b981; }
+        .disapprove-textarea { width: 100%; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: white; padding: 12px; font-size: 0.9rem; resize: vertical; min-height: 100px; outline: none; font-family: inherit; margin-top: 8px; }
+        .disapprove-textarea:focus { border-color: #f87171; }
 
         @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr 1fr; } body { padding: 15px; } }
     </style>
@@ -141,6 +157,7 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
         <button class="filter-tab active" onclick="filterTab('all', this)">All</button>
         <button class="filter-tab" onclick="filterTab('new', this)">New</button>
         <button class="filter-tab" onclick="filterTab('resolved', this)">Resolved</button>
+        <button class="filter-tab" onclick="filterTab('disapproved', this)">Disapproved</button>
     </div>
 
     <table id="adminTable">
@@ -156,15 +173,21 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
         </thead>
         <tbody id="tableBody">
             <?php foreach ($rows as $row): 
-                $isRes = ($row['status'] === 'Resolved');
-                $statusLabel = $row['status'] ?? 'New';
-                $timestamp = date('M d, Y h:i A', strtotime($row['submitted_at']));
-                $snippet = strlen($row['message']) > 50 ? substr($row['message'], 0, 50) . '...' : $row['message'];
+                $isRes          = ($row['status'] === 'Resolved');
+                $isDisapproved  = ($row['status'] === 'Disapproved');
+                $isDone         = $isRes || $isDisapproved;
+                $statusLabel    = $row['status'] ?? 'New';
+                $timestamp      = date('M d, Y h:i A', strtotime($row['submitted_at']));
+                $snippet        = strlen($row['message']) > 50 ? substr($row['message'], 0, 50) . '...' : $row['message'];
+
+                if ($isRes)          $statusColor = '#10b981';
+                elseif ($isDisapproved) $statusColor = '#f87171';
+                else                 $statusColor = '#f59e0b';
             ?>
-            <tr class="<?php echo $isRes ? 'resolved-row' : ''; ?>" 
+            <tr class="<?php echo $isRes ? 'resolved-row' : ($isDisapproved ? 'disapproved-row' : ''); ?>" 
                 data-status="<?php echo strtolower($statusLabel); ?>"
                 data-search="<?php echo strtolower(htmlspecialchars($row['fullname'] . ' ' . $row['email'] . ' ' . $row['breed'])); ?>">
-                <td><b style="color:<?php echo $isRes ? '#10b981':'#f59e0b'; ?>;"><?php echo $statusLabel; ?></b></td>
+                <td><b style="color:<?php echo $statusColor; ?>;"><?php echo $statusLabel; ?></b></td>
                 <td>
                     <strong><?php echo htmlspecialchars($row['fullname']); ?></strong><br>
                     <small style="color:#94a3b8;"><?php echo htmlspecialchars($row['email']); ?></small>
@@ -188,13 +211,20 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
                         View
                     </button>
 
-                    <?php if(!$isRes): ?>
-                        <!-- RESOLVE BUTTON — opens modal with response input -->
+                    <?php if(!$isDone): ?>
+                        <!-- RESOLVE BUTTON -->
                         <button class="btn btn-green resolve-btn"
                             data-id="<?php echo $row['id']; ?>"
                             data-name="<?php echo htmlspecialchars($row['fullname'], ENT_QUOTES); ?>"
                             data-breed="<?php echo htmlspecialchars($row['breed'], ENT_QUOTES); ?>">
                             Resolve
+                        </button>
+                        <!-- DISAPPROVE BUTTON -->
+                        <button class="btn btn-orange disapprove-btn"
+                            data-id="<?php echo $row['id']; ?>"
+                            data-name="<?php echo htmlspecialchars($row['fullname'], ENT_QUOTES); ?>"
+                            data-breed="<?php echo htmlspecialchars($row['breed'], ENT_QUOTES); ?>">
+                            Disapprove
                         </button>
                     <?php else: ?>
                         <a href="?delete_id=<?php echo $row['id']; ?>" class="btn btn-red" onclick="return confirm('Delete permanently?')">Delete</a>
@@ -224,8 +254,8 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
             <div style="flex:1;"><div class="modal-label">Status</div><div class="modal-value" id="mStatus"></div></div>
         </div>
         <div id="adminResponseSection" style="display:none;">
-            <div class="modal-label" style="color:#10b981;"> Admin Response Sent to User</div>
-            <div class="modal-value" id="mResponse" style="color:#10b981; border-color:#10b981;"></div>
+            <div class="modal-label" id="adminResponseLabel"> Admin Response Sent to User</div>
+            <div class="modal-value" id="mResponse"></div>
         </div>
     </div>
 </div>
@@ -250,8 +280,27 @@ while ($row = $result->fetch_assoc()) { $rows[] = $row; }
     </div>
 </div>
 
+<!-- DISAPPROVE MODAL -->
+<div class="modal-overlay" id="disapproveModal">
+    <div class="disapprove-box">
+        <button class="modal-close" onclick="closeModal('disapproveModal')">✕</button>
+        <h2 style="color:#f87171; margin-bottom:5px;">❌ Disapprove Inquiry</h2>
+        <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:15px;" id="disapproveSubtitle"></p>
+        <form method="POST">
+            <input type="hidden" name="disapprove_id" id="disapproveId">
+            <div class="modal-label">Reason for Disapproval</div>
+            <small style="color:#64748b;">This will be shown to the user so they can re-inquire if needed</small>
+            <textarea name="disapprove_reason" class="disapprove-textarea" 
+                placeholder="e.g. We're sorry, this breed is currently unavailable for adoption. Please check back later or consider another breed."></textarea>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button type="submit" class="btn btn-red" style="flex:1; padding:12px; font-size:1rem; background:rgba(239,68,68,0.3); border:1px solid #f87171;">❌ Confirm Disapproval</button>
+                <button type="button" class="btn" style="flex:1; padding:12px; background:#334155; color:#94a3b8;" onclick="closeModal('disapproveModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
-// Handle View and Resolve button clicks
 document.getElementById('tableBody').addEventListener('click', function(e) {
 
     // VIEW button
@@ -263,9 +312,14 @@ document.getElementById('tableBody').addEventListener('click', function(e) {
         document.getElementById('mMessage').textContent   = viewBtn.dataset.message;
         document.getElementById('mTimestamp').textContent = viewBtn.dataset.timestamp;
         document.getElementById('mStatus').textContent    = viewBtn.dataset.status;
-        const resp = viewBtn.dataset.response;
+        const resp   = viewBtn.dataset.response;
+        const status = viewBtn.dataset.status;
         if (resp) {
             document.getElementById('mResponse').textContent = resp;
+            document.getElementById('mResponse').style.color = status === 'Disapproved' ? '#f87171' : '#10b981';
+            document.getElementById('mResponse').style.borderColor = status === 'Disapproved' ? '#f87171' : '#10b981';
+            document.getElementById('adminResponseLabel').textContent = status === 'Disapproved' ? ' Disapproval Reason Sent to User' : ' Admin Response Sent to User';
+            document.getElementById('adminResponseLabel').style.color = status === 'Disapproved' ? '#f87171' : '#10b981';
             document.getElementById('adminResponseSection').style.display = 'block';
         } else {
             document.getElementById('adminResponseSection').style.display = 'none';
@@ -281,13 +335,21 @@ document.getElementById('tableBody').addEventListener('click', function(e) {
             'Approving inquiry from ' + resolveBtn.dataset.name + ' about ' + resolveBtn.dataset.breed;
         document.getElementById('resolveModal').classList.add('active');
     }
+
+    // DISAPPROVE button
+    const disapproveBtn = e.target.closest('.disapprove-btn');
+    if (disapproveBtn) {
+        document.getElementById('disapproveId').value = disapproveBtn.dataset.id;
+        document.getElementById('disapproveSubtitle').textContent =
+            'Disapproving inquiry from ' + disapproveBtn.dataset.name + ' about ' + disapproveBtn.dataset.breed;
+        document.getElementById('disapproveModal').classList.add('active');
+    }
 });
 
 function closeModal(id) {
     document.getElementById(id).classList.remove('active');
 }
 
-// Close modal when clicking outside
 document.querySelectorAll('.modal-overlay').forEach(m => {
     m.addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('active');
@@ -322,7 +384,7 @@ function exportProExcel() {
     document.querySelectorAll("#adminTable tbody tr").forEach(tr => {
         if (tr.style.display === 'none') return;
         let cells = tr.querySelectorAll("td");
-        let name = cells[1].querySelector("strong").innerText;
+        let name  = cells[1].querySelector("strong").innerText;
         let email = cells[1].querySelector("small").innerText;
         csv += `"${cells[0].innerText}","${name}","${email}","${cells[2].innerText}","${cells[3].innerText}","${cells[4].innerText}"\n`;
     });
