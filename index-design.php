@@ -6,6 +6,58 @@
     <title>TailTalk | Home</title>
     <link rel="stylesheet" href="homepage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Notification Badge */
+        .inquiry-nav-btn {
+            position: relative;
+            text-decoration: none;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            background: rgba(16,185,129,0.15);
+            border: 1px solid rgba(16,185,129,0.4);
+            color: #10b981;
+            margin-left: 8px;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .inquiry-nav-btn:hover {
+            background: rgba(16,185,129,0.3);
+            color: white;
+        }
+        .notif-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #f59e0b;
+            color: #0f172a;
+            font-size: 10px;
+            font-weight: 800;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-badge 2s infinite;
+        }
+        @keyframes pulse-badge {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        .sidebar-badge {
+            background: #f59e0b;
+            color: #0f172a;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+    </style>
 </head>
 <body>
 
@@ -21,9 +73,13 @@
             <a href="index.php#dogs-section" onclick="closeNav()"><i class="fa fa-dog"></i> All Breeds</a>
             <a href="about-design.php"><i class="fa fa-info-circle"></i> About Us</a>
             <a href="contact.php"><i class="fa fa-envelope"></i> Contact</a>
-
             <?php if(isset($_SESSION['user_id'])): ?>
-            <a href="my-inquiries.php" style="color:#10b981;"><i class="fa fa-clipboard-list"></i> My Inquiries</a>
+            <a href="my-inquiries.php" style="color:#10b981;">
+                <i class="fa fa-clipboard-list"></i> My Inquiries
+                <?php if($pending_count > 0): ?>
+                <span class="sidebar-badge"><?php echo $pending_count; ?></span>
+                <?php endif; ?>
+            </a>
             <?php endif; ?>
         </div>
         <div class="sidebar-footer">
@@ -47,8 +103,11 @@
                         <span>Hello,</span> <strong><?php echo htmlspecialchars($username); ?></strong> 🐾
                     </a>
                     <?php if(isset($_SESSION['user_id'])): ?>
-                    <a href="my-inquiries.php" class="profile-link" style="margin-left:8px; background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.4); color:#10b981;">
-                        📋 My Inquiries
+                    <a href="my-inquiries.php" class="inquiry-nav-btn">
+                        <i class="fa fa-clipboard-list"></i> My Inquiries
+                        <?php if($pending_count > 0): ?>
+                        <span class="notif-badge"><?php echo $pending_count; ?></span>
+                        <?php endif; ?>
                     </a>
                     <?php endif; ?>
                 <?php else: ?>
@@ -91,22 +150,21 @@
              <div class="animal-grid">
     <?php while ($row = mysqli_fetch_assoc($result)): 
         $breed = $row['breed_name'];
-        
         $with_hyphen = str_replace(' ', '-', $breed);
-        $lower_name = strtolower($with_hyphen);
+        $lower_name  = strtolower($with_hyphen);
         $plain_lower = strtolower($breed);
 
-    if (file_exists(__DIR__ . "/images/$with_hyphen.jpg")) {
-        $display_img = "images/$with_hyphen.jpg";
-    } elseif (file_exists(__DIR__ . "/images/$lower_name.jpg")) {
-        $display_img = "images/$lower_name.jpg";
-    } elseif (file_exists(__DIR__ . "/images/$plain_lower.jpg")) {
-        $display_img = "images/$plain_lower.jpg";
-    } elseif (!empty($row['image']) && file_exists(__DIR__ . "/images/" . $row['image'])) {
-        $display_img = "images/" . $row['image'];
-    } else {
-        $display_img = "images/Collage.jpg";
-    }
+        if (file_exists(__DIR__ . "/images/$with_hyphen.jpg")) {
+            $display_img = "images/$with_hyphen.jpg";
+        } elseif (file_exists(__DIR__ . "/images/$lower_name.jpg")) {
+            $display_img = "images/$lower_name.jpg";
+        } elseif (file_exists(__DIR__ . "/images/$plain_lower.jpg")) {
+            $display_img = "images/$plain_lower.jpg";
+        } elseif (!empty($row['image']) && file_exists(__DIR__ . "/images/" . $row['image'])) {
+            $display_img = "images/" . $row['image'];
+        } else {
+            $display_img = "images/Collage.jpg";
+        }
     ?>
     <div class="animal-card">
         <div class="img-box">
@@ -147,7 +205,7 @@
             </div>
             <div class="footer-section">
                 <h4>Connect</h4>
-                <p>Email: Petinfo&health@tailtalks.com</p>
+                <p>Email: support@tailtalks.com</p>
                 <p>Location: Manila, Philippines</p>
             </div>
         </div>
